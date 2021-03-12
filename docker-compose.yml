@@ -1,0 +1,39 @@
+version: "2.2"
+
+services:
+    web:
+        image: api-resto
+        build: 
+            context: ./
+            dockerfile: Dockerfile
+        container_name: api-resto
+        ports: 
+            - 88:80
+        restart: unless-stopped
+        
+    cassandra-c01:
+        container_name: 
+            cassandra-c01
+        image:
+            cassandra
+        ports:
+            - 9042:9042
+        environment: 
+            - CASSANDRA_CLUSTER_NAME=Formation
+        volumes:
+            - ./data/cassandra-c01:/var/lib/cassandra    
+            
+    cassandra-c02:
+        container_name: 
+            cassandra-c02
+        image:
+            cassandra
+        command: 
+            /bin/bash -c "sleep 30 && echo && /docker-entrypoint.sh cassandra -f"
+        links:
+            - cassandra-c01:seed
+        environment: 
+            - CASSANDRA_SEEDS=seed
+            - CASSANDRA_CLUSTER_NAME=Formation
+        volumes:
+            - ./data/cassandra-c02:/var/lib/cassandra    
